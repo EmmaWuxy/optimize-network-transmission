@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-  
+#include <netinet/in.h>
+
 int main()
 {
-   char data_pre[1000] = {0};
-   printf("size to send: %d", sizeof(data_pre));
-   printf("the 100th element of the array: %d", data_pre[1000]);
+   int x = 1000;
+   int a = htons(x);
+   printf("converted to network byte order: %d", a);
+   int t = ntohs(a);
+   printf("converted back: %d",t);
 
 }
