@@ -1,30 +1,32 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<sys/socket.h>
-#include <time.h>
-#include <arpa/inet.h>
-#include <unistd.h>
+#include<time.h>
+#include<arpa/inet.h>
+#include<netinet/in.h>
+#include<unistd.h>
 
 int main(int argc , char *argv[])
 {
 	int s;
     struct sockaddr_in server;
-	char* receive_buffer;
     char success_message[] = "Received All";
-	int recv_size = 100000 + 1000;
+    int test_amount = 1000000000;
+    int buffer_size = test_amount + 1000;
 	struct timespec begin, end;
+	int size;
 
     //Allocate memory
-	receive_buffer = (char*)malloc(recv_size);
+	char* receive_buffer = (char*)malloc(buffer_size);
 	
     //Create a socket
     s = socket(AF_INET , SOCK_STREAM , 0);
 	if (s == -1)
 	{
-		printf("Could not create socket\n");
+		printf("Could not create socket.");
         return 1;
 	}
-    printf("Socket created.\n");
+    printf("Socket created.");
 
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = inet_addr("132.206.51.95"); // IP of mimi
@@ -37,23 +39,31 @@ int main(int argc , char *argv[])
 		return 1;
 	}
 	puts("Connected");
-
-    //Receive a small packet from the server
-    if( int size = recv(s, receive_buffer , recv_size , 0) < 0)
-	{
-		puts("Small packet recv failed");
-        return 1;
-	}
-	puts("Small packet received\n");
-    recv_size -= 1000;
 	
+	//Receive small packet and do a handshake with server
+	size = recv(s, receive_buffer, buffer_size, 0);
+    buffer_size -= size;
+    receive_buffer += size;
+    printf("Small packet received: %d bytes. ", size);
+
+    int network_byte_size = htons(size);
+    int handshake_size = send(s, &network_byte_size, 2, 0);
+    if(handshake_size<0){
+        perror("Hand shake send failed. Error");
+        return 1;
+    }
+    else if(handshake_size==0){
+        puts("Handshake info send failed. Send out 0 bytes.");
+        return 1;
+    }
+    puts("Hand shake sent.");
+    
+
     //Receive formal data from the server
     clock_gettime(CLOCK_REALTIME, &begin);
-
-    while (recv_size>0) // the remaining part is greater than 0
-    {
-        int size= recv(s, receive_buffer, recv_size , 0);
-	    printf("size is %d bytes\n", size);
+    while (buffer_size>0) // the remaining part is greater than 0
+    {	
+        size= recv(s, receive_buffer, buffer_size , 0);
 	
         if(size<0){
             perror("recv failed. Error");
@@ -61,15 +71,13 @@ int main(int argc , char *argv[])
 	    }
 	    if(size==0){
 	        puts("Connection interrupted, receive 0 bytes.");
-            return 1;
+		return 1;
 	    }
 
-        recv_size = recv_size - size;
+        buffer_size -= size;
         receive_buffer += size;
-        printf("The recv_size is %d bytes\n", recv_size);
     }
-
-    puts("All data received\n");
+    puts("All data received.");
 
     clock_gettime(CLOCK_REALTIME, &end);
     long seconds = end.tv_sec - begin.tv_sec;
@@ -78,13 +86,13 @@ int main(int argc , char *argv[])
 
     printf("The elapsed time is %f seconds.\n", time_spent);
     
-    // Send a confirmation to the server that all data has received
-    if( send(s , success_message , sizeof(success_message) , 0) < 0)
-    {
-    	puts("Send success message failed");
-    	return 1;
-    }
-    puts("Success message sent.\n");
+    // // Send a confirmation to the server that all data has received
+    // if( send(s , success_message , sizeof(success_message) , 0) < 0)
+    // {
+    // 	puts("Send success message failed");
+    // 	return 1;
+    // }
+    // puts("Success message sent.\n");
   
     // Socket close and free allocated memory
     close(s);
