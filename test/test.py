@@ -1,10 +1,10 @@
 from timeit import default_timer as timer
 import time
+import numpy as np
+import sys
 
  #Receive formal data from the server
-start = timer()
+data_pre = np.chararray(1000)
+data_pre[:] = '0'
 
-time.sleep(2.4)
-
-end = timer()
-print("The elapsed time inseconds: ", end - start)
+print("size in bytes: ", sys.getsizeof(data_pre.tobytes()))
