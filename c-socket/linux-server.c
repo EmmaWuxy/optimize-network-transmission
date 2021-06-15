@@ -2,30 +2,73 @@
 #include<stdlib.h>
 #include<sys/socket.h>
 #include <arpa/inet.h>
+#include<netinet/in.h>
 #include <unistd.h>
 
-int main(int argc, char const *argv[])
+void transmit(int socket, char* data, int test_size)
 {
+    int goal = test_size;
+    while (test_size>0)
+    {
+        int size_sent= send(socket , data , test_size , 0);
+        if(size_sent<0){
+            perror("Send data failed. Error");
+            exit(1);
+		}
+        if(size_sent==0){
+            puts("Did not managed to send out all data. size_sent=0");
+            exit(1);
+        }
+        test_size -= size_sent;
+        data += size_sent;
+    }
+    printf("Successfully sent %d bytes\n", goal);
+}
+
+void receive(int socket, int test_size)
+{
+    int32_t handshake_size = 0;
+    int size_received = recv(socket, (char*)&handshake_size, 4, 0);
+    if(size_received<0){
+        perror("Handshake failed. Error");
+        exit(1);
+    }
+    else if(size_received==0){
+        puts("Handshake failed. Receive 0 bytes.");
+        exit(1);
+    }
+    puts("Handshake done.");
+}
+
+int main(int argc, char const *argv[])
+{   
+    int test_size = atoi(argv[1]);
     int s, new_socket, c;
     struct sockaddr_in server, client;
-    int size_of_data = 100000;
-    
-    // Arrange data
-    char data_pre[1000] = {0};
-    char receive_buffer_pro[1000] = {0};
-    char* data;
-    data = (char*)malloc(size_of_data); 
+    int8_t close_request = 0;
 
-    if (data == NULL) {
-        printf("Memory not allocated.\n");
+    // Arrange data
+    char* data_pre = (char*)malloc(1000);
+     if (data_pre == NULL) {
+        printf("Small memory chunck not allocated.\n");
         return 1;
     }
 
-    for(int i = 0; i < size_of_data; i++){ 
-        data[i] = 49;                           // assign '1' to the allocated memory
+    char* data = (char*)malloc(test_size); 
+    if (data == NULL) {
+        printf("Big memory chunck not allocated.\n");
+        return 1;
     }
 
-    //Create a socket
+    for(int i=0; i<1000; i++){
+    	data_pre[i] = 48;  			       // assign '0' to the allocated memory
+    }
+
+    for(int i = 0; i < test_size; i++){ 
+        data[i] = 49;                      // assign '1' to the allocated memory
+    }
+
+    // Create a socket
     s = socket(AF_INET , SOCK_STREAM , 0);
 	if (s == -1)
 	{
@@ -57,44 +100,25 @@ int main(int argc, char const *argv[])
 
     puts("Connection accepted");
 
-    //Reply to client: send a small data packet to reduce the influence of overhead
-    if( send(new_socket , data_pre , sizeof(data_pre) , 0) < 0)
-    {
-    	puts("Send small packet failed");
-    	return 1;
-    }
-    puts("Successfully sent the small packet");
+    //Send 1000 bytes to client to reduce the influence of overhead
+    transmit(new_socket, data_pre, 1000);
 
-    //Reply to client: send large chunck of data
-    while (size_of_data>0) // the remaining part is greater than 0
-    {
-        int size= send(new_socket , data , size_of_data , 0);
-        printf("size: %d bytes\n", size);
-    
-        if(size<0){
-            perror("Send formal data failed. Error");
-            return 1;
-		}
-        size_of_data = size_of_data - size;
-        data += size;
-        printf("size_of_Data: %d bytes\n", size_of_data);
+    //Receive the ack from the client of receiving 1000 characters
+    receive(new_socket, 1000);
+
+    for(int i=0; i<3; i++){
+        //Send large chunck of data to client
+        transmit(new_socket, data, test_size);
+        //Receive the ack from the client of receving test_size characters, check if the client receive all bytes
+        receive(new_socket, test_size);
     }
     
-    puts("Successfully sent all the data");
+    //Send back a request for closing
+    transmit(new_socket, (char*)&close_request, 1);
 
-    // Receive confirmation from client that all data has received
-    if( recv(new_socket, receive_buffer_pro , 10000 , 0) < 0)
-    {
-        perror("Success message recv failed. Error");
-        return 1;
-    }
-    puts("Success message received\n");
-
-
-    // Socket close and free allocated memory
+    // Socket close
     close(new_socket);
     close(s);
-    //free(data);
 
     return 0;
 }
