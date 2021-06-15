@@ -5,16 +5,48 @@
 #include<netinet/in.h>
 #include <unistd.h>
 
-int main(int argc, char const *argv[])
+void transmit(int socket, char* data, int test_size)
 {
+    int goal = test_size;
+    while (test_size>0)
+    {
+        int size_sent= send(socket , data , test_size , 0);
+        if(size_sent<0){
+            perror("Send data failed. Error");
+            exit(1);
+		}
+        if(size_sent==0){
+            puts("Did not managed to send out all data. size_sent=0");
+            exit(1);
+        }
+        test_size -= size_sent;
+        data += size_sent;
+    }
+    printf("Successfully sent %d bytes\n", goal);
+}
+
+void receive(int socket, int test_size)
+{
+    int32_t handshake_size = 0;
+    int size_received = recv(socket, (char*)&handshake_size, 4, 0);
+    if(size_received<0){
+        perror("Handshake failed. Error");
+        exit(1);
+    }
+    else if(size_received==0){
+        puts("Handshake failed. Receive 0 bytes.");
+        exit(1);
+    }
+    puts("Handshake done.");
+}
+
+int main(int argc, char const *argv[])
+{   
+    int test_size = atoi(argv[1]);
     int s, new_socket, c;
     struct sockaddr_in server, client;
-    int test_amount = 1000000000;
-    int size_of_data = test_amount + 1000;
-    int size_sent;
-    int size_received;
-    int16_t handshake_size = 0;
-    
+    int8_t close_request = 0;
+
     // Arrange data
     char* data_pre = (char*)malloc(1000);
      if (data_pre == NULL) {
@@ -22,20 +54,18 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
-    char* data = (char*)malloc(size_of_data); 
+    char* data = (char*)malloc(test_size); 
     if (data == NULL) {
         printf("Big memory chunck not allocated.\n");
         return 1;
     }
 
-    //char* receive_buffer_pro = (char*)malloc(1000); 
-
     for(int i=0; i<1000; i++){
-    	data_pre[i] = 48;  			// assign '0' to the allocated memory
+    	data_pre[i] = 48;  			       // assign '0' to the allocated memory
     }
 
-    for(int i = 0; i < size_of_data; i++){ 
-        data[i] = 49;                           // assign '1' to the allocated memory
+    for(int i = 0; i < test_size; i++){ 
+        data[i] = 49;                      // assign '1' to the allocated memory
     }
 
     // Create a socket
@@ -70,66 +100,23 @@ int main(int argc, char const *argv[])
 
     puts("Connection accepted");
 
-    //Send a small data packet to client to reduce the influence of overhead
-    while (size_of_data>test_amount)
-    {
-        size_sent = send(new_socket, data_pre, 1000, 0);
-        printf("size_sent:%d\n", size_sent);
-        if(size_sent<0){
-            perror("Small packet set failed. Error");
-            return 1;
-        }
-        if(size_sent==0){
-            puts("Did not managed to send out the small packet. size_sent=0");
-        }
-        size_of_data -= size_sent;
-        data_pre += size_sent;
-    }
+    //Send 1000 bytes to client to reduce the influence of overhead
+    transmit(new_socket, data_pre, 1000);
 
-    //Do a handshake with client
-    size_received = recv(new_socket, (char*)&handshake_size, 2, 0);
-    if(size_received<0){
-        perror("Handshake failed. Error");
-    }
-    else if(size_received==0){
-        puts("Handshake failed. Receive 0 bytes.\n");
-    }
+    //Receive the ack from the client of receiving 1000 characters
+    receive(new_socket, 1000);
 
-    handshake_size = ntohs(handshake_size);
-    if(handshake_size != 1000){
-        puts("The client did not fullly receive the small packet.");
-        return 1;
-    }
-    puts("Handshake done.");
-
-    //Send large chunck of data to client
-    while (size_of_data>0) // the remaining part is greater than 0
-    {
-        size_sent= send(new_socket , data , size_of_data , 0);
-	    printf("size_sent:%d\n", size_sent);
-        if(size_sent<0){
-            perror("Send formal data failed. Error");
-            return 1;
-		}
-        if(size_sent==0){
-            puts("Did not managed to send out all data. size_sent=0\n");
-        }
-        size_of_data -= size_sent;
-        data += size_sent;
+    for(int i=0; i<3; i++){
+        //Send large chunck of data to client
+        transmit(new_socket, data, test_size);
+        //Receive the ack from the client of receving test_size characters, check if the client receive all bytes
+        receive(new_socket, test_size);
     }
     
-    puts("Successfully sent all the data");
+    //Send back a request for closing
+    transmit(new_socket, (char*)&close_request, 1);
 
-    // // Receive confirmation from client that all data has received
-    // if( recv(new_socket, receive_buffer_pro , 10000 , 0) < 0)
-    // {
-    //     perror("Success message recv failed. Error");
-    //     return 1;
-    // }
-    // puts("Success message received\n");
-
-
-    // Socket close and free allocated memory
+    // Socket close
     close(new_socket);
     close(s);
 
