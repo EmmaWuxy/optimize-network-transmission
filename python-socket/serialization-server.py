@@ -8,11 +8,12 @@ HOST = ''           # Socket is reachable by any address the machine happens to 
 PORT = int(sys.argv[1])        # Port to listen on (non-privileged ports are > 1023)
 test_size = int(sys.argv[2])
 
-#Initialization of data
+# Data arrangement
 data_pre = np.chararray(1000)
 data_pre[:] = '0'
-data = np.chararray(test_size)
-data[:] = '1'
+#data = np.chararray(test_size)
+#data[:] = '1'
+data = OrderedDict({x: x*2 for x in range(test_size)})
 
 def transmit(sock, obj):
     pickler = pickle.Pickler(sock.makefile(mode='wb'))
