@@ -19,30 +19,31 @@ def receive(sock):
     unpickler = pickle.Unpickler(sock.makefile(mode='rb'))
     return unpickler.load()
 
-def threaded(name):
+def threaded(name, p):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-        print("Connected")
+        s.connect((HOST, p))
+        print(f"Thread {name} connected")
         data = receive(s)
         size = len(data)
-        print("Thread {name} successfully receive {size} bytes")
+        print(f"Thread {name} successfully receive {size} bytes")
         transmit(s, size)
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
-    print("Connected\n")
+    print("Connected")
 
     # Receive a small packet from the server
     data = receive(s)
     print("Small packet received, in bytes:", len(data))
+    #transmit(s, len(data))
 
     # Receive formal data from the server
     start = timer()
 
     # Create threads0
-    t1 = threading.Thread(target=threaded,args=(0,))
-    t2 = threading.Thread(target=threaded,args=(1,))
-    t3 = threading.Thread(target=threaded,args=(2,))
+    t1 = threading.Thread(target=threaded,args=(1,PORT+1))
+    t2 = threading.Thread(target=threaded,args=(2,PORT+2))
+    t3 = threading.Thread(target=threaded,args=(3,PORT+3))
 
     # Start threads
     t1.start()
@@ -57,3 +58,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Receive server's request for closing
     receive(s)
     end = timer()
+    print("The elapsed time is %f" %(end - start))
