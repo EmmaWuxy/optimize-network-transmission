@@ -1,8 +1,8 @@
 #!/bin/bash
-> experiment1.txt
+#> experiment1.txt
 sum=0
 PORT=60000
-for((data_size=10000; data_size<=10000000; data_size*=10))
+for((data_size=125; data_size<=125000000; data_size*=10))
 do
 	for((i=0; i<7; i++))
 	do
@@ -14,7 +14,7 @@ do
                 #Calculate the average
                 if [[ $i -eq 6 ]]
                 then
-                	echo "$sum/7" | bc -l >> experiment1.txt
+                	echo "scale=6; $sum/7" | bc -l >> experiment1.txt
                 fi	
 	done
 done

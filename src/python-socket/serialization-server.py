@@ -1,9 +1,12 @@
+from collections import OrderedDict
+import pickle
 import socket
 import sys
-import pickle
+
 import numpy as np
-from collections import OrderedDict
 import lz4.frame
+
+import data_commu as commu
 
 HOST = ''           # Socket is reachable by any address the machine happens to have
 PORT = int(sys.argv[1])        # Port to listen on (non-privileged ports are > 1023)
@@ -14,21 +17,7 @@ num_loop = int(sys.argv[4])
 # Data arrangement
 data_pre = np.chararray(1000)
 data_pre[:] = '0'
-#data = np.chararray(test_size)
-#data[:] = '1'
-data = OrderedDict({x: 0 for x in range(test_size)})
-
-def transmit_notcompressed(sock, obj):
-    pickler = pickle.Pickler(sock.makefile(mode='wb'))
-    pickler.dump(obj)
-
-def transmit_compressed(sock, obj):
-    pickler = pickle.Pickler(sock.makefile(mode='wb'))
-    pickler.dump(lz4.frame.compress(pickle.dumps(obj)))
-
-def receive(sock):
-    unpickler = pickle.Unpickler(sock.makefile(mode='rb'))
-    return unpickler.load()
+data = np.random.randint(0, 100, test_size, dtype='int64')
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT)) #binds it to a specific ip and port so that it can listen to incoming requests on that ip and port
@@ -37,23 +26,23 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print('Connected by {}'.format(addr))
     with conn: 
         #Reply to client: send a numpy array of 1000 characters
-        transmit_notcompressed(conn, data_pre)
+        commu.transmit_notcompressed(conn, data_pre)
         print("Successfully sent the small packet")
-        #Receive the ack from the client of receiving 1000 characters
-        confirm = receive(conn)
+        #receive the ack from the client of receiving 1000 characters
+        confirm = commu.receive(conn)
         if confirm != 1000:
 	        sys.exit("Error: client do not receive all 1000 bytes data")
         for i in range(num_loop):
             #Reply to client: send a numpy array of size_of_data character
             if compression_flag == 0:
-                transmit_notcompressed(conn,data)
+                commu.transmit_notcompressed(conn,data)
             else:
-                transmit_compressed(conn,data)
+                commu.transmit_compressed(conn,data)
             print("Successfully sent all the data")
-            #Receive the ack from the client of receving test_size characters
-            confirm = receive(conn)
+            #receive the ack from the client of receving test_size characters
+            confirm = commu.receive(conn)
             if confirm != test_size:
                 sys.exit(f"Error: client do not receive all {test_size} bytes data")
         #Send back a request for closing
-        transmit_notcompressed(conn, 0)
+        commu.transmit_notcompressed(conn, 0)
         

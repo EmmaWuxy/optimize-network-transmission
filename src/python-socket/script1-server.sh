@@ -1,6 +1,6 @@
 #!/bin/bash
 PORT=60000
-for((data_size=10000; data_size<=10000000; data_size*=10))
+for((data_size=125; data_size<=125000000; data_size*=10))
 do
 	for ((i=0; i<7; i++))
 	do

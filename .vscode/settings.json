@@ -4,5 +4,6 @@
         "stdlib.h": "c",
         "winsock2.h": "c",
         "stdio.h": "c"
-    }
+    },
+    "python.pythonPath": "C:\\Python37\\python.exe"
 }
