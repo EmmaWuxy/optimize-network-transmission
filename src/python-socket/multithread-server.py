@@ -7,18 +7,18 @@ import sys
 import numpy as np
 import lz4.frame
 
+import data
 import data_commu as commu
 
-HOST = ''           # Socket is reachable by any address the machine happens to have
-PORT = int(sys.argv[1])        # Port to listen on (non-privileged ports are > 1023)
+HOST = ''                       # Socket is reachable by any address the machine happens to have
+PORT = int(sys.argv[1])         # Port to listen on (non-privileged ports are > 1023)
 test_size = int(sys.argv[2])
 compression_flag = int(sys.argv[3])
 num_thread = int(sys.argv[4])
 
 # Data arrange
-data_pre = np.chararray(1000)
-data_pre[:] = '0'
-data = np.random.randint(0, 100, test_size, dtype='int64')
+data = data.generate_data(test_size)
+
 threads = OrderedDict()
 
 def threaded(name, p):
@@ -49,7 +49,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print('Experiment on {} bytes.\nConnected by {}'.format(test_size, addr))
     with conn: 
         #Reply to client: send a numpy array of 1000 characters
-        commu.transmit_notcompressed(conn, data_pre)
+        commu.transmit_notcompressed(conn, data.data_pre)
         print("Successfully sent the small packet")
 
         # Formal test

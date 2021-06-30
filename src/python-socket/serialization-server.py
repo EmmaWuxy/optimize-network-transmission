@@ -6,6 +6,7 @@ import sys
 import numpy as np
 import lz4.frame
 
+import data
 import data_commu as commu
 
 HOST = ''           # Socket is reachable by any address the machine happens to have
@@ -15,9 +16,7 @@ compression_flag = int(sys.argv[3])
 num_loop = int(sys.argv[4])
 
 # Data arrangement
-data_pre = np.chararray(1000)
-data_pre[:] = '0'
-data = np.random.randint(0, 100, test_size, dtype='int64')
+data = data.generate_data(test_size)
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT)) #binds it to a specific ip and port so that it can listen to incoming requests on that ip and port
@@ -26,7 +25,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print('Connected by {}'.format(addr))
     with conn: 
         #Reply to client: send a numpy array of 1000 characters
-        commu.transmit_notcompressed(conn, data_pre)
+        commu.transmit_notcompressed(conn, data.data_pre)
         print("Successfully sent the small packet")
         #receive the ack from the client of receiving 1000 characters
         confirm = commu.receive(conn)
