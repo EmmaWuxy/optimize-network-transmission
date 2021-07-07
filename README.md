@@ -2,11 +2,6 @@
 
 Milestone experiment to speed up network data transmission
 
-<<<<<<< HEAD
-Test python socket:
-script-server.py and script-client.py
-=======
-
 ## Description
 
 Run a python server-client data transmission experiment using a python file `$FILE`. `$FILE` can be one of `singlethread-server.py`, `singlethread-client.py`, `multithread-server.py`, `multithread-client.py`
@@ -22,4 +17,3 @@ The experiment records the time it takes the client to transmit `$NUM` * 1000, 1
 # Client side
 ~$ ./script-client.sh $FILE $CPR $NUM
 ```
->>>>>>> f23e6655d50ceb6aca900dde836d707feb884114
