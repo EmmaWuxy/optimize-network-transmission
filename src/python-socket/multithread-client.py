@@ -9,10 +9,8 @@ from collections import OrderedDict
 import lz4.frame
 
 import data_commu as commu
+from parameter import HOST
 
-#HOST = '127.0.0.1'  # local host
-HOST = '132.206.51.95' # IP of mimi
-#HOST = '10.0.0.20' # IP of Emma
 PORT = int(sys.argv[1])    # The port used by the server
 test_size = int(sys.argv[2])
 compression_flag = int(sys.argv[3])

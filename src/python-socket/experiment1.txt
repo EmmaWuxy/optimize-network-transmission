@@ -1,0 +1,80 @@
+uncompressed, single thread, 2 loops
+.001008
+.002735
+.004836
+.017229
+.129855
+1.186168
+9.406057
+uncompressed, multi-thread, 2 threads
+.002487
+.005118
+.009216
+.021177
+.114741
+.972349
+7.463005
+uncompressed, single thread, 3 loops
+.001913
+.003423
+.005955
+.023023
+.167625
+1.710260
+13.015772
+uncompressed, multi-thread, 3 threads
+.003034
+.006492
+.011060
+.025536
+.151113
+1.313399
+11.635986
+uncompressed, single thread, 4 loops
+.001619
+.003728
+.008008
+.025519
+.197545
+2.260428
+17.213401
+uncompressed, multi-thread, 4 threads
+.004443
+.009017
+.014850
+.035726
+.194671
+1.786869
+14.055946
+uncompressed, single thread, 5 loops
+.002904
+.004964
+.008897
+.031037
+.217353
+2.780199
+21.878800
+uncompressed, multi-thread, 5 threads
+.004859
+.010029
+.017343
+.041013
+.240010
+2.036248
+16.361086
+uncompressed, single thread, 6 loops
+.004047
+.007370
+.011647
+.037043
+.252291
+3.381732
+26.002469
+uncompressed, multi-thread, 6 threads
+.005724
+.012991
+.022057
+.050222
+.279780
+2.523327
+19.066922
