@@ -6,7 +6,7 @@ Milestone experiment to speed up network data transmission
 
 #### Experiment 1
 Python socket vs. C socket comparison for data of size 3,000, 30,000, 300,000, 3,000,000, 30,000,000, 300,000,000 bytes in np arraies.
-Result outputs in result1.txt
+Result outputs in result1.txt.
 ###### For C 
 ```bash
 ~$ cd ./src/c-socket
@@ -25,7 +25,7 @@ Result outputs in result1.txt
 ```
 #### Experiment 2
 Singlethread vs. Multhithread Python program comparison of size 10,000, 100,000, 1,000,000, 10,000,000 in np arraies for a single thread. Thread number are tested from 1 thread to 5 threads.
-Result outputs in result2.txt
+Result outputs in result2.txt.
 ###### With data compression
 ```bash
 ~$ cd ./src/python-socket
@@ -44,7 +44,7 @@ Result outputs in result2.txt
 ```
 #### Experiment 3
 Singlethread vs. Multhithread Python program comparison on transmitting tables from TPC-H bechmark with data compression. One thread for each single column for multithreading.
-Result outputs in result3.txt
+Result outputs in result3.txt.
 ```bash
 ~$ cd ./src/python-socket
 # Server side
@@ -54,7 +54,7 @@ Result outputs in result3.txt
 ```
 #### Experiment 4
 Transmit each column from TPC-H benchmark tables with different number of threads. From single-thread to 6 threads to observe the effect of multithreading on columnes of different data type and different length.
-Result outputs in result4.txt
+Result outputs in result4.txt.
 ```bash
 ~$ cd ./src/python-socket
 # Server side
@@ -64,7 +64,7 @@ Result outputs in result4.txt
 ```
 #### Experiment 5
 Multithreading with one thread for each column vs. Multithreading with one thread for each column plus slicing the last column (text column with long length) into multiple threads. Experiemnt are done to slice the last column from 1 thread to 6 threads.
-Result outputs in result5.txt
+Result outputs in result5.txt.
 ```bash
 ~$ cd ./src/python-socket
 # Server side
