@@ -1,0 +1,33 @@
+single, uncompressed, supplier.tbl
+1.773768
+single, compressed, supplier.tbl
+1.961984
+multi, uncompressed, supplier.tbl
+1.689517
+multi, compressed, supplier.tbl
+1.331738
+single, uncompressed, region.tbl
+1.254191
+single, compressed, region.tbl
+1.542487
+multi, uncompressed, region.tbl
+1.597233
+multi, compressed, region.tbl
+1.608428
+single, uncompressed, partsupp.tbl
+18.255608
+single, compressed, partsupp.tbl
+9.002108
+multi, uncompressed, partsupp.tbl
+17.840745
+multi, compressed, partsupp.tbl
+8.840780
+single, uncompressed, part.tbl
+4.993796
+single, compressed, part.tbl
+5.736277
+multi, uncompressed, part.tbl
+4.355395
+multi, compressed, part.tbl
+3.209764
+single, uncompressed, orders.tbl
