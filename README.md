@@ -1,6 +1,7 @@
-# summer_research_2021
+# Optimize Network Transmission
+2021 Summer research project with Joseph Vinish D'silva at McGill University.  
 
-Milestone experiment to speed up network data transmission
+Milestone experiment to speed up network data transmission for AIDA.
 
 ## Description and Usage
 
